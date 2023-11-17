@@ -94,7 +94,7 @@ if selected == "Upload & Extract":
         save_card(uploaded_card)  #calling the save function
     
     #displaying the uploaded card
-        col1,col2 = st.columns(2,gap="large")
+        col1,col2 = st.columns(2, gap="large")
         with col1:
             st.markdown("#     ")
             st.markdown("### Preview of the uploaded card")
@@ -202,6 +202,58 @@ if selected == "Upload & Extract":
             
             st.success("Uploaded to database successfully")
 
+# Modify data menu
+
+if selected == "Modify data":
+
+    mod_col1, mod_col2 = st.columns([7,3])
+    st.write("   ")
+
+    with mod_col1:
+        mycursor.execute("SELECT card_holder FROM card_details")
+        results = mycursor.fetchall()
+        business_cards = {}
+
+        for row in results:
+            business_cards[row[0]] = row[0]
+
+        selected_card = st.selectbox("Select a card holder name to modify", list(business_cards.keys()))
+        # st.write(f"### You have selected :red[**{selected_card}'s**] card to modify")
+        st.markdown("### Modify any data below")
+
+        mycursor.execute("SELECT company_name, card_holder, designation, contact_number, email, website, area, city, state, pincode FROM card_details \
+                         WHERE card_holder = %s", (selected_card,))
+        result = mycursor.fetchone()
+
+        # Display all the details
+        company_name = st.text_input("Company Name", result[0])
+        card_holder = st.text_input("Card Holder", result[1])
+        designation = st.text_input("Designation", result[2])
+        contact_number = st.text_input("Contact Number", result[3])
+        email = st.text_input("E-mail", result[4])
+        website = st.text_input("Website", result[5])
+        area = st.text_input("Area", result[6])
+        city = st.text_input("City", result[7])
+        state = st.text_input("State", result[8])
+        pincode = st.text_input("Pincode", result[9])
+
+        if st.button("Update in DB"):
+
+            mycursor.execute(""" UPDATE card_details SET company_name = %s, card_holder = %s, designation = %s, contact_number = %s, email = %s, website = %s, \
+                            area = %s, city = %s, state = %s, pincode = %s WHERE card_holder = %s""",
+                            (company_name, card_holder, designation, contact_number, email, website, area, city, state, pincode, selected_card))
+            mydb.commit()
+            st.success("Details updated in database successfully.")
+
+    with mod_col2:
+            st.write("   ")
+
+    if st.button("View updated data"):
+        mycursor.execute("SELECT company_name, card_holder, designation, contact_number, email, website, area, city, state, pincode FROM card_details")
+        updated_df = pd.DataFrame(mycursor.fetchall(), columns = ["Company_Name","Card_Holder","Designation","Contact_Number","Email","Website","Area","City","State","Pincode"])
+        st.write(updated_df)
+    
+
 
 # Delete menu
 
@@ -217,6 +269,7 @@ if selected == "Delete":
             mycursor.execute("SELECT card_holder FROM card_details")
             result = mycursor.fetchall()
             business_cards = {}
+
             for row in result:
                 business_cards[row[0]] = row[0]
             
