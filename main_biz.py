@@ -1,4 +1,3 @@
-import cv2
 import os
 import re
 import easyocr
@@ -6,7 +5,6 @@ import pandas as pd
 import streamlit as st
 from streamlit_option_menu import option_menu
 import mysql.connector
-from PIL import Image
 import matplotlib.pyplot as plt
 
 #setting page config
